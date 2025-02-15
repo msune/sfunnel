@@ -6,7 +6,7 @@ on:
 
 env:
   ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
-  PLATFORMS: linux/amd64
+  PLATFORMS: linux/amd64,linux/arm64
 
 permissions:
   packages: write
@@ -17,11 +17,13 @@ jobs:
       fail-fast: false
       matrix:
         combination:
-          #Debug
+          #amd64
           - { kernel: 'Linux 6.8', runner: 'ubuntu-24.04', clangs: 'clang-14 clang-15 clang-16 clang-17 clang-18', debug: '1' }
-
-          #NDEBUG
           - { kernel: 'Linux 6.8', runner: 'ubuntu-24.04', clangs: 'clang-14 clang-15 clang-16 clang-17 clang-18', debug: '0' }
+
+          #arm64
+          - { kernel: 'Linux 6.8', runner: 'ubuntu-24.04-arm', clangs: 'clang-14 clang-15 clang-16 clang-17 clang-18', debug: '1' }
+          - { kernel: 'Linux 6.8', runner: 'ubuntu-24.04-arm', clangs: 'clang-14 clang-15 clang-16 clang-17 clang-18', debug: '0' }
     runs-on: ${{ matrix.combination.runner }}
     steps:
       - name: "Checkout sfunnel"
@@ -39,7 +41,7 @@ jobs:
                                   bridge-utils python3-scapy python3-pip libbpf-dev \
                                   libelf-dev linux-headers-generic \
                                   linux-libc-dev llvm iptables
-          sudo ln -s /usr/include/x86_64-linux-gnu/asm /usr/include/asm
+          sudo ln -s /usr/include/$(uname -m)-linux-gnu/asm /usr/include/asm
           if [[ "${{ matrix.combination.runner }}" == "ubuntu-24.04" ]]; then
             sudo apt-get install python3-pytest
           else
@@ -66,12 +68,21 @@ jobs:
       fail-fast: false
       matrix:
         combination:
+          # amd64
           - { runner: 'ubuntu-24.04', cni: 'cilium',  nodes: '1' }
           - { runner: 'ubuntu-24.04', cni: 'cilium',  nodes: '2' }
 
           - { runner: 'ubuntu-24.04', cni: 'calico',  nodes: '2' }
           - { runner: 'ubuntu-24.04', cni: 'flannel', nodes: '2' }
           - { runner: 'ubuntu-24.04', cni: 'kindnet', nodes: '2' }
+
+          # arm64
+          - { runner: 'ubuntu-24.04-arm', cni: 'cilium',  nodes: '1' }
+          - { runner: 'ubuntu-24.04-arm', cni: 'cilium',  nodes: '2' }
+
+          - { runner: 'ubuntu-24.04-arm', cni: 'calico',  nodes: '2' }
+          - { runner: 'ubuntu-24.04-arm', cni: 'flannel', nodes: '2' }
+          - { runner: 'ubuntu-24.04-arm', cni: 'kindnet', nodes: '2' }
     runs-on: ${{ matrix.combination.runner }}
     steps:
       - name: "Checkout sfunnel"
@@ -89,7 +100,7 @@ jobs:
                                   bridge-utils python3-scapy python3-pip libbpf-dev \
                                   libelf-dev linux-headers-generic \
                                   linux-libc-dev llvm iptables
-          sudo ln -s /usr/include/x86_64-linux-gnu/asm /usr/include/asm
+          sudo ln -s /usr/include/$(uname -m)-linux-gnu/asm /usr/include/asm
           if [[ "${{ matrix.combination.runner }}" == "ubuntu-24.04" ]]; then
             sudo apt-get install python3-pytest
           else

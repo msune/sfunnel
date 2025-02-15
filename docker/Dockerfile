@@ -21,7 +21,7 @@ COPY src/ /opt/sfunnel/src/
 COPY ./docker/entrypoint.sh /opt/sfunnel
 RUN rm /opt/sfunnel/src/ruleset.default && \
   chmod +x /opt/sfunnel/entrypoint.sh && \
-  ln -s /usr/include/x86_64-linux-gnu/asm /usr/include/asm && \
+  ln -s /usr/include/$(uname -m)-linux-gnu/asm /usr/include/asm; \
   echo "${VERSION}(${COMMIT})" > /opt/sfunnel/VERSION
 
 #Cleanup image
